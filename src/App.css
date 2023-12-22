@@ -1,38 +1,196 @@
-.App {
+.header {
   text-align: center;
+  margin-top: 100px;
+  color: white;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.ui {
+  border: 1px solid white;
+  margin-top: 50px;
+  width: max-content;
+  padding: 10px;
+  border-radius: 0.3em;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.ui h1 {
+  color: white;
+  margin: 10px 0 10px 0;
+  font-size: larger;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.ui .url {
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+  flex-direction: row;
+}
+
+.ui .url select {
+  background-color: transparent;
+  color: white;
+  padding: 5px;
+  border: 1px solid white;
+  border-radius: 0.3em;
+  outline: none;
+  margin-right: 10px;
+  width: 80px;
+}
+
+.ui .url option {
+  color: black;
+}
+
+.ui .url input {
+  padding: 5px;
+  outline: none;
+  border-radius: 0.3em;
+  font-family: Arial, Helvetica, sans-serif;
+  width: 500px;
+  background-color: transparent;
+  color: white;
+  border: 1px solid white
+}
+
+.ui .execute-button {
+  background-color: transparent;
+  border: 1px solid white;
+  border-radius: 0.3em;
+  color: white;
+  display: block;
+  margin-left: auto;
+  margin-top: 20px;
+}
+
+.ui .execute-button:hover {
+  background-color: rgb(73, 73, 73);
+}
+
+.ui .execute-button:active {
+  background-color: black;
+}
+
+.ui .headers-input {
+  background-color: black;
+  color: white;
+  width: 586px;
+  resize: vertical;
+  border: none;
+  border-radius: 0.3em;
+  padding: 10px;
+  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100px;
+}
+
+.ui .json-validate {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.ui .message {
+  color: rgb(94, 94, 94);
+}
+
+.ui .request-body {
+  border: 1px solid white;
+  border-radius: 0.3em;
+  overflow: hidden;
+}
+
+.ui .format-options {
+  display: flex;
+  justify-content: center;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ui .format-options li {
+  margin: 5px;
+  padding: 10px;
+  width: 100%;
+  text-align: center;
+  color: white;
+  background-color: rgb(94, 94, 94);
+  cursor: pointer;
+  border-radius: 0.3em;
+  border: 1px solid transparent;
+}
+
+.ui .format-options li:hover {
+  background-color: rgb(71, 71, 71);
+}
+
+.ui .json-body-entry {
+  display: block;
+  margin: 10px auto 10px auto;
+  background-color: black;
+  color: white;
+  width: 560px;
+  resize: vertical;
+  border: none;
+  border-radius: 0.3em;
+  padding: 10px;
+  font-family: Arial, Helvetica, sans-serif;
+  min-height: 200px;
+}
+
+.ui form {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.ui .form-data-entry {
+  display: flex;
+  flex-direction: row;
+  margin-top: 10px;
+}
+
+.ui .form-data-entry span {
+  color: white;
+  background-color: black;
+  border-radius: 0.3em;
+  text-align: center;
+  padding: 5px;
+  width: 200px;
+  overflow: hidden;
+  display: block;
+  margin: auto 10px auto 0;
+}
+
+.ui .form-data-entry input {
+  padding: 5px;
+  font-family: Arial, Helvetica, sans-serif;
+  display: block;
+  border: 1px solid white;
+  border-radius: 0.3em;
+  background-color: rgb(51, 51, 51);
+  margin: auto 10px auto 0;
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.ui .form-data-entry button {
+  background-color: rgba(255, 0, 0, 0.342);
+  color: white;
+  border-radius: 0.3em;
+  margin: auto 10px auto 0;
+  border: none;
+  padding: 5px 10px 5px 10px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.ui .form-data-entry button:hover {
+  background-color: rgba(255, 0, 0, 0.658);
+}
+
+.ui .add-form-entry {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+  margin-top: 10px;
+  background-color: rgb(51, 51, 51);
+  padding: 10px;
 }
