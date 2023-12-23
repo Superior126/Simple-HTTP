@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import './App.css';
+import './spinners.css';
 
 function RequestBody({ method, bodyFormat, setBodyFormat }) {
   // Hold form data entries
@@ -62,11 +63,6 @@ function RequestBody({ method, bodyFormat, setBodyFormat }) {
     document.getElementById('form-entry-value').value = "";
   }
 
-  // for testing
-  useEffect(() => {
-    console.log(formDataEntries);
-  }, [formDataEntries]);
-
   // Check if method is POST
   if (method === "POST") {
     return(
@@ -78,7 +74,7 @@ function RequestBody({ method, bodyFormat, setBodyFormat }) {
         {bodyFormat === "JSON" ? (
           <>
             <textarea id='json-body' placeholder='{"key2": "value2"}' className='json-body-entry' onChange={check_body_json} />
-            <span style={{'padding-left': "15px"}} className='json-validate' id='json-body-validator' />
+            <span style={{'paddingLeft': "15px"}} className='json-validate' id='json-body-validator' />
           </>
         ) : (
           <>
@@ -87,7 +83,7 @@ function RequestBody({ method, bodyFormat, setBodyFormat }) {
                 <div className='form-data-entry' key={index}>
                   <span>{entry}</span>
                   <input type='text' name={entry} />
-                  <button onClick={() => setFormDataEntries(formDataEntries.filter(e => e !== entry))}> x </button>
+                  <button onClick={() => setFormDataEntries(formDataEntries.filter(e => e !== entry))} type='button'> x </button>
                 </div>
               ))}
             </form>
@@ -104,7 +100,7 @@ function RequestBody({ method, bodyFormat, setBodyFormat }) {
   }
 }
 
-function UserInterface() {
+function UserInterface({ setRequestState }) {
   // Hold the method for the request
   const [method, setMethod] = useState('GET');
 
@@ -141,6 +137,87 @@ function UserInterface() {
     }
   }
 
+  // Handle request execution
+  function execute_request() {
+    // Get request URL
+    const request_url = document.getElementById('request-url').value;
+
+    // Prepare request details
+    let request_details = {
+      method: method
+    }
+
+    // Get request headers
+    const request_headers = document.getElementById('headers-input').value;
+
+    // Check if headers has a value
+    if (request_headers !== "") {
+      request_details['headers'] = JSON.parse(request_headers);
+    }
+    
+    // Check if method is POST
+    if (method === 'POST') {
+      // Check body format
+      if (bodyFormat === 'JSON') {
+        request_details['body'] = document.getElementById('json-body').value;
+      } else {
+        request_details['body'] = new FormData(document.getElementById("form-body"));
+      }
+    }
+
+    setRequestState('loading');
+    
+    // Get main ui element
+    const main_ui = document.getElementById('main-user-interface');
+
+    // Disable main ui during request execution
+    for (let child of main_ui.querySelectorAll('*')) {
+      child.disabled = true;
+    }
+
+    // Execute http request
+    fetch(request_url, request_details)
+      .then(response => {
+        // Store response status for further use
+        const statusCode = response.status;
+
+        // Get response text as a Promise
+        return response.text().then(responseText => {
+          // Extracting response headers
+          const responseHeaders = Object.fromEntries(response.headers.entries());
+
+          if (!response.ok) {
+            // If response not OK, throw an error with response information
+            // eslint-disable-next-line
+            throw { statusCode, responseText, responseHeaders };
+          }
+
+          return { statusCode, responseText, responseHeaders };
+        });
+      })
+      .then(({ statusCode, responseText, responseHeaders }) => {
+        // Update request status for successful responses
+        setRequestState({
+          'status_code': statusCode,
+          'content': responseText,
+          'response_headers': responseHeaders,
+        });
+      })
+      .catch(error => {
+        // Update request status for errors
+        setRequestState({
+          'status_code': error.statusCode || 'Unknown', // Set error status or error string
+          'content': error.responseText || null, // Set responseText or null
+          'response_headers': error.responseHeaders || {}, // Set responseHeaders or an empty object
+        });
+      });
+
+    // Enable main ui after request execution
+    for (let child of main_ui.querySelectorAll('*')) {
+      child.disabled = false;
+    }
+  }
+
   return(
     <div className='ui'>
       <h1>URL</h1>
@@ -149,26 +226,93 @@ function UserInterface() {
           <option>GET</option>
           <option>POST</option>
         </select>
-        <input placeholder='https://example.com' type='url' />
+        <input placeholder='https://example.com' type='url' id='request-url' />
       </div>
       <h1>Headers</h1>
       <textarea className='headers-input' placeholder='{"key1": "value1"}' id='headers-input' onChange={check_header_json} />
       <span className='json-validate' id='json-validator' />
       <h1>Body</h1>
       <RequestBody method={method} bodyFormat={bodyFormat} setBodyFormat={setBodyFormat} />
-      <button className='execute-button'>Execute</button>
+      <button className='execute-button' onClick={() => execute_request()}>Execute</button>
     </div>
   );
 }
 
+function RequestResults({ requestState }) {
+
+  // Scroll to request response
+  useEffect(() => {
+    if (requestState !== 'loading' && requestState !== 'error' && requestState !== 'hidden') {
+      window.location.href = "#request-results-section";
+
+      // Get http status code element
+      const http_status_code = document.getElementById('http-status-code');
+
+      // Color http status code
+      if (requestState.status_code >= 200 && requestState.status_code <= 299) {
+        http_status_code.style.color = 'green';
+
+      } else {
+        http_status_code.style.color = 'red';
+      }
+    }
+  }, [requestState]);
+  
+  if (requestState === 'loading') {
+    return(
+      <div className='request-results'>
+        <div className="lds-dual-ring" />
+      </div>
+    );
+  } else if (requestState === 'hidden') {
+    // Return nothing if request results are hidden
+    return;
+
+  } else if (requestState === 'error') {
+      return(
+        <div className='request-results'>
+          <div className='request-error-panel'>
+            <h1>Something Went Wrong!</h1>
+            <span>An error accrued and we were unable to fulfill your request.</span>
+          </div>
+        </div>
+      );
+  } else {
+    return(
+      <div className='request-results' id='request-results-section'>
+        <h1>Request Results</h1>
+        <h3>Status Code: <span id='http-status-code'>{requestState.status_code}</span></h3>
+        {requestState.status_code !== "Unknown" ? (
+          <>
+            {/*eslint-disable-next-line*/}
+            <span>Don't recognize this status code? <a href={`https://www.bing.com/search?q=http+${requestState.status_code}+status+code`} target='_blank'>Look it up!</a></span>
+          </>
+        ) : (
+          <>
+            <span>Status code is not available!</span>
+          </>
+        )}
+        <h3>Request Headers</h3>
+        <p>{JSON.stringify(requestState.response_headers, null, 2)}</p>
+        <h3>Request Body</h3>
+        <p>{requestState.content}</p>
+      </div>
+    );
+  }
+}
+
 function App() {
+  // Store request state
+  const [requestState, setRequestState] = useState('hidden');
+
   return (
-    <div className='app'>
+    <div className='app' id='main-user-interface'>
       <div className='header'>
         <h1>Simple HTTP</h1>
         <p>Simple HTTP is a web app that allows you to send http requests to any URL of your choice.</p>
       </div>
-      <UserInterface />
+      <UserInterface setRequestState={setRequestState} />
+      <RequestResults requestState={requestState} />
     </div>
   );
 }
