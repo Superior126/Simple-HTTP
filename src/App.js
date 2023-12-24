@@ -65,7 +65,7 @@ function RequestBody({ method, bodyFormat, setBodyFormat }) {
   }
 
   // Check if method is POST
-  if (method === "POST") {
+  if (method === "POST" || method === "PUT") {
     return(
       <div className='request-body'>
         <ul className='format-options'>
@@ -97,7 +97,7 @@ function RequestBody({ method, bodyFormat, setBodyFormat }) {
       </div>
     );
   } else {
-    return <p className='message'>Request body not available with GET.</p>
+    return <p className='message'>Request body not available with {method}.</p>
   }
 }
 
@@ -157,7 +157,7 @@ function UserInterface({ setRequestState }) {
     }
     
     // Check if method is POST
-    if (method === 'POST') {
+    if (method === 'POST' || method === 'PUT') {
       // Check body format
       if (bodyFormat === 'JSON') {
         request_details['body'] = document.getElementById('json-body').value;
@@ -226,6 +226,8 @@ function UserInterface({ setRequestState }) {
         <select id='request-method' onChange={() => setMethod(document.getElementById('request-method').value)}>
           <option>GET</option>
           <option>POST</option>
+          <option>DELETE</option>
+          <option>PUT</option>
         </select>
         <input placeholder='https://example.com' type='url' id='request-url' />
       </div>
