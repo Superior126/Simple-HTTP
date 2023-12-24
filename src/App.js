@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import './App.css';
 import './spinners.css';
+import logo from './assets/logo.png';
 
 function RequestBody({ method, bodyFormat, setBodyFormat }) {
   // Hold form data entries
@@ -308,6 +309,7 @@ function App() {
   return (
     <div className='app' id='main-user-interface'>
       <div className='header'>
+        <img src={logo} alt='logo' className='logo' />
         <h1>Simple HTTP</h1>
         <p>Simple HTTP is a web app that allows you to send http requests to any URL of your choice.</p>
       </div>
