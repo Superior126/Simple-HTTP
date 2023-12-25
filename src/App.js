@@ -1,23 +1,28 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import './App.css';
 import './spinners.css';
 import logo from './assets/logo.png';
 
-function RequestBody({ method, bodyFormat, setBodyFormat }) {
+function RequestBody({ method, bodyFormat, setBodyFormat, formBody, jsonBody }) {
+  const jsonBodyButton = useRef();
+  const formBodyButton = useRef();
+  const jsonBodyValidator = useRef();
+  const formEntryValue = useRef();
+
   // Hold form data entries
   const [formDataEntries, setFormDataEntries] = useState([]);
 
   // Set active button based on body format
   useEffect(() => {
     // Check if method is POST
-    if (method === "POST") {
+    if (method === "POST" || method === "PUT") {
       if (bodyFormat === 'JSON') {
-        document.getElementById('json-format-button').style.borderColor = 'white';
-        document.getElementById('formData-format-button').style.borderColor = 'transparent';
+        jsonBodyButton.current.style.borderColor = 'white';
+        formBodyButton.current.style.borderColor = 'transparent';
 
       } else if (bodyFormat === 'Form Data') {
-        document.getElementById('json-format-button').style.borderColor = 'transparent';
-        document.getElementById('formData-format-button').style.borderColor = 'white';
+        jsonBodyButton.current.style.borderColor = 'transparent';
+        formBodyButton.current.style.borderColor = 'white';
       }
     }
   }, [bodyFormat, method]);
@@ -25,14 +30,11 @@ function RequestBody({ method, bodyFormat, setBodyFormat }) {
   // Check if body json is valid
   function check_body_json() {
     // Get json from input
-    const json_string = document.getElementById('json-body').value;
-
-    // Get json validator
-    const json_validator = document.getElementById('json-body-validator');
+    const json_string = jsonBody.current.value;
 
     // Check if any data exists
     if (json_string === "") {
-      json_validator.innerHTML = "";
+      jsonBodyValidator.current.innerHTML = "";
       return;
     }
 
@@ -41,27 +43,27 @@ function RequestBody({ method, bodyFormat, setBodyFormat }) {
       JSON.parse(json_string);
 
       // Update json validator
-      json_validator.innerHTML = "JSON is valid!";
-      json_validator.style.color = "green";
+      jsonBodyValidator.current.innerHTML = "JSON is valid!";
+      jsonBodyValidator.current.style.color = "green";
 
     } catch {
 
       // Update json validator
-      json_validator.innerHTML = "JSON not is valid!";
-      json_validator.style.color = "red";
+      jsonBodyValidator.current.innerHTML = "JSON not is valid!";
+      jsonBodyValidator.current.style.color = "red";
     }
   }
 
   // Handle adding new form entries to request body
   function add_form_entry() {
     // Get entry name
-    const entry_name = document.getElementById('form-entry-value').value;
+    const entry_name = formEntryValue.current.value;
 
     // Add new form entry
     setFormDataEntries([...formDataEntries, entry_name]);
 
     // Clear entry box
-    document.getElementById('form-entry-value').value = "";
+    formEntryValue.current.value = "";
   }
 
   // Check if method is POST
@@ -69,17 +71,17 @@ function RequestBody({ method, bodyFormat, setBodyFormat }) {
     return(
       <div className='request-body'>
         <ul className='format-options'>
-          <li onClick={() => setBodyFormat('JSON')} id='json-format-button'>JSON</li>
-          <li onClick={() => setBodyFormat('Form Data')} id='formData-format-button'>Form Data</li>
+          <li onClick={() => setBodyFormat('JSON')} ref={jsonBodyButton}>JSON</li>
+          <li onClick={() => setBodyFormat('Form Data')} ref={formBodyButton}>Form Data</li>
         </ul>
         {bodyFormat === "JSON" ? (
           <>
-            <textarea id='json-body' placeholder='{"key2": "value2"}' className='json-body-entry' onChange={check_body_json} />
-            <span style={{'paddingLeft': "15px"}} className='json-validate' id='json-body-validator' />
+            <textarea ref={jsonBody} placeholder='{"key2": "value2"}' className='json-body-entry' onChange={check_body_json} />
+            <span style={{'paddingLeft': "15px"}} className='json-validate' ref={jsonBodyValidator} />
           </>
         ) : (
           <>
-            <form id='form-body' className='form-body-entry'>
+            <form ref={formBody} className='form-body-entry'>
               {formDataEntries.map((entry, index) => (
                 <div className='form-data-entry' key={index}>
                   <span>{entry}</span>
@@ -89,7 +91,7 @@ function RequestBody({ method, bodyFormat, setBodyFormat }) {
               ))}
             </form>
             <div className='add-form-entry'>
-              <input id='form-entry-value' placeholder='example123' />
+              <input ref={formEntryValue} placeholder='example123' />
               <button onClick={() => add_form_entry()}> Add +</button>
             </div>
           </>
@@ -102,6 +104,13 @@ function RequestBody({ method, bodyFormat, setBodyFormat }) {
 }
 
 function UserInterface({ setRequestState }) {
+  const jsonValidator = useRef();
+  const headersInput = useRef();
+  const requestURL = useRef();
+  const requestMethod = useRef();
+  const formBody = useRef();
+  const jsonBody = useRef();
+
   // Hold the method for the request
   const [method, setMethod] = useState('GET');
 
@@ -111,14 +120,11 @@ function UserInterface({ setRequestState }) {
   // Check if header json is valid
   function check_header_json() {
     // Get json from input
-    const json_string = document.getElementById('headers-input').value;
-
-    // Get json validator
-    const json_validator = document.getElementById('json-validator');
+    const json_string = headersInput.current.value;
 
     // Check if any data exists
     if (json_string === "") {
-      json_validator.innerHTML = "";
+      jsonValidator.current.innerHTML = "";
       return;
     }
 
@@ -127,29 +133,25 @@ function UserInterface({ setRequestState }) {
       JSON.parse(json_string);
 
       // Update json validator
-      json_validator.innerHTML = "JSON is valid!";
-      json_validator.style.color = "green";
+      jsonValidator.current.innerHTML = "JSON is valid!";
+      jsonValidator.current.style.color = "green";
 
     } catch {
-
       // Update json validator
-      json_validator.innerHTML = "JSON not is valid!";
-      json_validator.style.color = "red";
+      jsonValidator.current.innerHTML = "JSON not is valid!";
+      jsonValidator.current.style.color = "red";
     }
   }
 
   // Handle request execution
   function execute_request() {
-    // Get request URL
-    const request_url = document.getElementById('request-url').value;
-
     // Prepare request details
     let request_details = {
       method: method
     }
 
     // Get request headers
-    const request_headers = document.getElementById('headers-input').value;
+    const request_headers = headersInput.current.value;
 
     // Check if headers has a value
     if (request_headers !== "") {
@@ -160,24 +162,16 @@ function UserInterface({ setRequestState }) {
     if (method === 'POST' || method === 'PUT') {
       // Check body format
       if (bodyFormat === 'JSON') {
-        request_details['body'] = document.getElementById('json-body').value;
+        request_details['body'] = jsonBody.current.value;
       } else {
-        request_details['body'] = new FormData(document.getElementById("form-body"));
+        request_details['body'] = new FormData(formBody.current);
       }
     }
 
     setRequestState('loading');
-    
-    // Get main ui element
-    const main_ui = document.getElementById('main-user-interface');
-
-    // Disable main ui during request execution
-    for (let child of main_ui.querySelectorAll('*')) {
-      child.disabled = true;
-    }
 
     // Execute http request
-    fetch(request_url, request_details)
+    fetch(requestURL.current.value, request_details)
       .then(response => {
         // Store response status for further use
         const statusCode = response.status;
@@ -212,51 +206,50 @@ function UserInterface({ setRequestState }) {
           'response_headers': error.responseHeaders || {}, // Set responseHeaders or an empty object
         });
       });
-
-    // Enable main ui after request execution
-    for (let child of main_ui.querySelectorAll('*')) {
-      child.disabled = false;
-    }
   }
 
   return(
     <div className='ui'>
       <h1>URL</h1>
       <div className='url'>
-        <select id='request-method' onChange={() => setMethod(document.getElementById('request-method').value)}>
+        <select ref={requestMethod} onChange={() => setMethod(requestMethod.current.value)}>
           <option>GET</option>
           <option>POST</option>
           <option>DELETE</option>
           <option>PUT</option>
         </select>
-        <input placeholder='https://example.com' type='url' id='request-url' />
+        <input placeholder='https://example.com' type='url' ref={requestURL} />
       </div>
       <h1>Headers</h1>
-      <textarea className='headers-input' placeholder='{"key1": "value1"}' id='headers-input' onChange={check_header_json} />
-      <span className='json-validate' id='json-validator' />
+      <textarea className='headers-input' placeholder='{"key1": "value1"}' ref={headersInput} onChange={check_header_json} />
+      <span className='json-validate' ref={jsonValidator} />
       <h1>Body</h1>
-      <RequestBody method={method} bodyFormat={bodyFormat} setBodyFormat={setBodyFormat} />
+      <RequestBody method={method} bodyFormat={bodyFormat} setBodyFormat={setBodyFormat} formBody={formBody} jsonBody={jsonBody} />
       <button className='execute-button' onClick={() => execute_request()}>Execute</button>
     </div>
   );
 }
 
 function RequestResults({ requestState }) {
+  const requestResultsSection = useRef();
+  const httpStatusCode = useRef();
 
   // Scroll to request response
   useEffect(() => {
-    if (requestState !== 'loading' && requestState !== 'error' && requestState !== 'hidden') {
-      window.location.href = "#request-results-section";
+    if (requestResultsSection.current) {
+      requestResultsSection.current.scrollIntoView({behavior: 'smooth'});
+    }
+  }, [requestState])
+  
+  // Color http status code
+  useEffect(() => {
+    if (httpStatusCode.current) {
 
-      // Get http status code element
-      const http_status_code = document.getElementById('http-status-code');
-
-      // Color http status code
       if (requestState.status_code >= 200 && requestState.status_code <= 299) {
-        http_status_code.style.color = 'green';
+        httpStatusCode.current.style.color = 'green';
 
       } else {
-        http_status_code.style.color = 'red';
+        httpStatusCode.current.style.color = 'red';
       }
     }
   }, [requestState]);
@@ -282,9 +275,9 @@ function RequestResults({ requestState }) {
       );
   } else {
     return(
-      <div className='request-results' id='request-results-section'>
+      <div className='request-results' ref={requestResultsSection}>
         <h1>Request Results</h1>
-        <h3>Status Code: <span id='http-status-code'>{requestState.status_code}</span></h3>
+        <h3>Status Code: <span ref={httpStatusCode}>{requestState.status_code}</span></h3>
         {requestState.status_code !== "Unknown" ? (
           <>
             {/*eslint-disable-next-line*/}
@@ -309,7 +302,7 @@ function App() {
   const [requestState, setRequestState] = useState('hidden');
 
   return (
-    <div className='app' id='main-user-interface'>
+    <div className='app'>
       <div className='header'>
         <img src={logo} alt='logo' className='logo' />
         <h1>Simple HTTP</h1>
