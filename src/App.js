@@ -10,14 +10,21 @@ function RequestBody({ method, bodyFormat, setBodyFormat }) {
   // Set active button based on body format
   useEffect(() => {
     // Check if method is POST
-    if (method === "POST") {
+    if (method === "POST" || method === "PUT") {
       if (bodyFormat === 'JSON') {
         document.getElementById('json-format-button').style.borderColor = 'white';
         document.getElementById('formData-format-button').style.borderColor = 'transparent';
+        document.getElementById('xml-format-button').style.borderColor = 'transparent';
 
       } else if (bodyFormat === 'Form Data') {
         document.getElementById('json-format-button').style.borderColor = 'transparent';
+        document.getElementById('xml-format-button').style.borderColor = 'transparent';
         document.getElementById('formData-format-button').style.borderColor = 'white';
+
+      } else if (bodyFormat === 'XML') {
+        document.getElementById('json-format-button').style.borderColor = 'transparent';
+        document.getElementById('xml-format-button').style.borderColor = 'white';
+        document.getElementById('formData-format-button').style.borderColor = 'transparent';
       }
     }
   }, [bodyFormat, method]);
@@ -52,6 +59,47 @@ function RequestBody({ method, bodyFormat, setBodyFormat }) {
     }
   }
 
+  function isValidXML(xmlString) {
+    try {
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(xmlString, 'application/xml');
+  
+      // Serialize the parsed XML document back to a string
+      const serializer = new XMLSerializer();
+      const serializedXml = serializer.serializeToString(xmlDoc);
+  
+      // Compare the serialized XML with the original XML
+      return serializedXml === xmlString;
+    } catch (error) {
+      return false; // Return false for parsing errors
+    }
+  }
+  
+  // Check if body xml is valid
+  function check_body_xml() {
+    // Get xml from input
+    const xml_string = document.getElementById('xml-body').value;
+  
+    // Get xml validator
+    const xml_validator = document.getElementById('xml-body-validator');
+  
+    // Check if any data exists
+    if (xml_string === "") {
+      xml_validator.innerHTML = "";
+      return;
+    }
+  
+    if (isValidXML(xml_string)) {
+      // Update xml validator for valid XML
+      xml_validator.innerHTML = "XML is valid!";
+      xml_validator.style.color = "green";
+    } else {
+      // Update xml validator for invalid XML
+      xml_validator.innerHTML = "XML is not valid!";
+      xml_validator.style.color = "red";
+    }
+  }
+
   // Handle adding new form entries to request body
   function add_form_entry() {
     // Get entry name
@@ -71,13 +119,14 @@ function RequestBody({ method, bodyFormat, setBodyFormat }) {
         <ul className='format-options'>
           <li onClick={() => setBodyFormat('JSON')} id='json-format-button'>JSON</li>
           <li onClick={() => setBodyFormat('Form Data')} id='formData-format-button'>Form Data</li>
+          <li onClick={() => setBodyFormat('XML')} id='xml-format-button'>XML</li>
         </ul>
         {bodyFormat === "JSON" ? (
           <>
             <textarea id='json-body' placeholder='{"key2": "value2"}' className='json-body-entry' onChange={check_body_json} />
-            <span style={{'paddingLeft': "15px"}} className='json-validate' id='json-body-validator' />
+            <span style={{ 'paddingLeft': "15px" }} className='json-validate' id='json-body-validator' />
           </>
-        ) : (
+        ) : bodyFormat === "Form Data" ? (
           <>
             <form id='form-body' className='form-body-entry'>
               {formDataEntries.map((entry, index) => (
@@ -92,6 +141,11 @@ function RequestBody({ method, bodyFormat, setBodyFormat }) {
               <input id='form-entry-value' placeholder='example123' />
               <button onClick={() => add_form_entry()}> Add +</button>
             </div>
+          </>
+        ) : (
+          <>
+            <textarea id='xml-body' placeholder='<key3>value3</key3>' className='xml-body-entry' onChange={check_body_xml} />
+            <span style={{ 'paddingLeft': "15px" }} className='xml-validate' id='xml-body-validator' />
           </>
         )}
       </div>
@@ -148,23 +202,39 @@ function UserInterface({ setRequestState }) {
       method: method
     }
 
-    // Get request headers
-    const request_headers = document.getElementById('headers-input').value;
-
-    // Check if headers has a value
-    if (request_headers !== "") {
-      request_details['headers'] = JSON.parse(request_headers);
-    }
+    // Get user provided request headers
+    const user_request_headers = document.getElementById('headers-input').value;
     
-    // Check if method is POST
+    // Define request headers
+    let request_headers = {};
+
+    // Check if user provided request headers
+    if (user_request_headers !== "") {
+      // Parse user headers and merge them into the request headers object
+      const parsedHeaders = JSON.parse(user_request_headers);
+      request_headers = { ...request_headers, ...parsedHeaders };
+    }
+
+    // Check if method is POST or PUT
     if (method === 'POST' || method === 'PUT') {
-      // Check body format
       if (bodyFormat === 'JSON') {
         request_details['body'] = document.getElementById('json-body').value;
-      } else {
+        request_headers['Content-Type'] = 'application/json';
+
+      } else if (bodyFormat === 'Form Data') {
         request_details['body'] = new FormData(document.getElementById("form-body"));
+        // No need to set Content-Type for FormData
+
+      } else {
+        request_details['body'] = document.getElementById('xml-body').value;
+        request_headers['Content-Type'] = 'text/xml';
       }
     }
+
+    // Add headers to request
+    request_details['headers'] = request_headers;
+
+    console.log(request_details);
 
     setRequestState('loading');
     

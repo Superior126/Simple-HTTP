@@ -94,6 +94,11 @@
   margin-bottom: 10px;
 }
 
+.ui .xml-validate {
+  display: block;
+  margin-bottom: 10px;
+}
+
 .ui .message {
   color: rgb(94, 94, 94);
 }
@@ -129,6 +134,20 @@
 }
 
 .ui .json-body-entry {
+  display: block;
+  margin: 10px auto 10px auto;
+  background-color: black;
+  color: white;
+  width: 560px;
+  resize: vertical;
+  border: none;
+  border-radius: 0.3em;
+  padding: 10px;
+  font-family: monospace;
+  min-height: 200px;
+}
+
+.ui .xml-body-entry {
   display: block;
   margin: 10px auto 10px auto;
   background-color: black;
