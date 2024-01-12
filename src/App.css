@@ -142,6 +142,20 @@
   min-height: 200px;
 }
 
+.ui .text-body-entry {
+  display: block;
+  margin: 10px auto 10px auto;
+  background-color: black;
+  color: white;
+  width: 560px;
+  resize: vertical;
+  border: none;
+  border-radius: 0.3em;
+  padding: 10px;
+  font-family: monospace;
+  min-height: 200px;
+}
+
 .ui form {
   display: flex;
   justify-content: center;

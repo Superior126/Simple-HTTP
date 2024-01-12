@@ -3,11 +3,12 @@ import './App.css';
 import './spinners.css';
 import logo from './assets/logo.png';
 
-function RequestBody({ method, bodyFormat, setBodyFormat, formBody, jsonBody }) {
+function RequestBody({ method, bodyFormat, setBodyFormat, formBody, jsonBody, textBody }) {
   const jsonBodyButton = useRef();
   const formBodyButton = useRef();
   const jsonBodyValidator = useRef();
   const formEntryValue = useRef();
+  const textBodyButton = useRef();
 
   // Hold form data entries
   const [formDataEntries, setFormDataEntries] = useState([]);
@@ -19,10 +20,17 @@ function RequestBody({ method, bodyFormat, setBodyFormat, formBody, jsonBody }) 
       if (bodyFormat === 'JSON') {
         jsonBodyButton.current.style.borderColor = 'white';
         formBodyButton.current.style.borderColor = 'transparent';
+        textBodyButton.current.style.borderColor = 'transparent';
 
       } else if (bodyFormat === 'Form Data') {
         jsonBodyButton.current.style.borderColor = 'transparent';
         formBodyButton.current.style.borderColor = 'white';
+        textBodyButton.current.style.borderColor = 'transparent';
+
+      } else if (bodyFormat === 'Text') {
+        jsonBodyButton.current.style.borderColor = 'transparent';
+        formBodyButton.current.style.borderColor = 'transparent';
+        textBodyButton.current.style.borderColor = 'white';
       }
     }
   }, [bodyFormat, method]);
@@ -73,11 +81,16 @@ function RequestBody({ method, bodyFormat, setBodyFormat, formBody, jsonBody }) 
         <ul className='format-options'>
           <li onClick={() => setBodyFormat('JSON')} ref={jsonBodyButton}>JSON</li>
           <li onClick={() => setBodyFormat('Form Data')} ref={formBodyButton}>Form Data</li>
+          <li onClick={() => setBodyFormat('Text')} ref={textBodyButton}>Text</li>
         </ul>
         {bodyFormat === "JSON" ? (
           <>
             <textarea ref={jsonBody} placeholder='{"key2": "value2"}' className='json-body-entry' onChange={check_body_json} />
             <span style={{'paddingLeft': "15px"}} className='json-validate' ref={jsonBodyValidator} />
+          </>
+        ) : bodyFormat === "Text" ? (
+          <>
+            <textarea ref={textBody} placeholder='Hello World' className='text-body-entry' />
           </>
         ) : (
           <>
@@ -110,6 +123,7 @@ function UserInterface({ setRequestState }) {
   const requestMethod = useRef();
   const formBody = useRef();
   const jsonBody = useRef();
+  const textBody = useRef();
 
   // Hold the method for the request
   const [method, setMethod] = useState('GET');
@@ -158,13 +172,15 @@ function UserInterface({ setRequestState }) {
       request_details['headers'] = JSON.parse(request_headers);
     }
     
-    // Check if method is POST
+    // Check request method and set body accordingly
     if (method === 'POST' || method === 'PUT') {
       // Check body format
       if (bodyFormat === 'JSON') {
         request_details['body'] = jsonBody.current.value;
-      } else {
+      } else if (bodyFormat === 'Form Data') {
         request_details['body'] = new FormData(formBody.current);
+      } else {
+        request_details['body'] = textBody.current.value;
       }
     }
 
@@ -224,7 +240,7 @@ function UserInterface({ setRequestState }) {
       <textarea className='headers-input' placeholder='{"key1": "value1"}' ref={headersInput} onChange={check_header_json} />
       <span className='json-validate' ref={jsonValidator} />
       <h1>Body</h1>
-      <RequestBody method={method} bodyFormat={bodyFormat} setBodyFormat={setBodyFormat} formBody={formBody} jsonBody={jsonBody} />
+      <RequestBody method={method} bodyFormat={bodyFormat} setBodyFormat={setBodyFormat} formBody={formBody} jsonBody={jsonBody} textBody={textBody} />
       <button className='execute-button' onClick={() => execute_request()}>Execute</button>
     </div>
   );
