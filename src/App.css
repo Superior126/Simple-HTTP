@@ -12,13 +12,16 @@
 
 .ui {
   border: 1px solid white;
+  width: 100%;
+  max-width: 600px;
   margin-top: 50px;
-  width: max-content;
+  margin-bottom: 20px;
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
   padding: 10px;
   border-radius: 0.3em;
   display: block;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 .ui h1 {
@@ -41,7 +44,7 @@
   border-radius: 0.3em;
   outline: none;
   margin-right: 10px;
-  width: 80px;
+  width: max-content;
 }
 
 .ui .url option {
@@ -80,7 +83,8 @@
 .ui .headers-input {
   background-color: black;
   color: white;
-  width: 586px;
+  box-sizing: border-box;
+  width: 100%;
   resize: vertical;
   border: none;
   border-radius: 0.3em;
@@ -128,12 +132,18 @@
   background-color: rgb(71, 71, 71);
 }
 
+.ui .json-body-entry-container {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
 .ui .json-body-entry {
   display: block;
   margin: 10px auto 10px auto;
   background-color: black;
   color: white;
-  width: 560px;
+  width: 100%;
+  box-sizing: border-box;
   resize: vertical;
   border: none;
   border-radius: 0.3em;
@@ -196,7 +206,7 @@
   background-color: rgba(255, 0, 0, 0.342);
   color: white;
   border-radius: 0.3em;
-  margin: auto 10px auto 0;
+  margin: auto;
   border: none;
   padding: 5px 10px 5px 10px;
 }
@@ -222,6 +232,7 @@
   background-color: rgb(51, 51, 51);
   margin: auto 10px auto 0;
   color: white;
+  width: 200px;
   padding: 5px;
 }
 
@@ -237,23 +248,35 @@
   background-color: rgb(78, 78, 78);
 }
 
+@media screen and (max-width: 490px) {
+  .ui .form-data-entry span {
+    width: 100px;
+  }
+
+  .ui .form-data-entry input {
+    width: 100px;
+  }
+}
+
 .request-results {
-  width: 606px;
+  width: 100%;
+  max-width: 600px;
   border: 1px solid white;
   border-radius: 0.3em;
   padding: 10px;
-  margin-top: 20px;
   margin-bottom: 20px;
   display: block;
   margin-left: auto;
   margin-right: auto;
   color: white;
+  box-sizing: border-box;
 }
 
 .request-results p {
   background-color: black;
   color: white;
-  width: 586px;
+  width: 100%;
+  box-sizing: border-box;
   border: none;
   border-radius: 0.3em;
   padding: 10px;

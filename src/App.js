@@ -85,7 +85,9 @@ function RequestBody({ method, bodyFormat, setBodyFormat, formBody, jsonBody, te
         </ul>
         {bodyFormat === "JSON" ? (
           <>
-            <textarea ref={jsonBody} placeholder='{"key2": "value2"}' className='json-body-entry' onChange={check_body_json} />
+            <div className='json-body-entry-container'>
+              <textarea ref={jsonBody} placeholder='{"key2": "value2"}' className='json-body-entry' onChange={check_body_json} />
+            </div>
             <span style={{'paddingLeft': "15px"}} className='json-validate' ref={jsonBodyValidator} />
           </>
         ) : bodyFormat === "Text" ? (
@@ -324,8 +326,10 @@ function App() {
         <h1>Simple HTTP</h1>
         <p>Simple HTTP is a web app that allows you to send http requests to any URL of your choice.</p>
       </div>
-      <UserInterface setRequestState={setRequestState} />
-      <RequestResults requestState={requestState} />
+      <div className='app-container'>
+        <UserInterface setRequestState={setRequestState} />
+        <RequestResults requestState={requestState} />
+      </div>
     </div>
   );
 }
