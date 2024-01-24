@@ -92,7 +92,9 @@ function RequestBody({ method, bodyFormat, setBodyFormat, formBody, jsonBody, te
           </>
         ) : bodyFormat === "Text" ? (
           <>
-            <textarea ref={textBody} placeholder='Hello World' className='text-body-entry' />
+            <div className='text-body-entry-container'>
+              <textarea ref={textBody} placeholder='Hello World' className='text-body-entry' />
+            </div>
           </>
         ) : (
           <>
