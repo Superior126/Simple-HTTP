@@ -142,6 +142,11 @@
   padding-right: 5px;
 }
 
+.ui .xml-body-entry-container {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
 .ui .json-body-entry {
   display: block;
   margin: 10px auto 10px auto;
@@ -159,11 +164,32 @@
 
 .ui .xml-body-entry {
   display: block;
-  margin: 10px auto 10px auto;
   background-color: black;
   color: white;
-  width: 560px;
+  width: 100%;
+  margin: 10px auto 10px auto;
   resize: vertical;
+  box-sizing: border-box;
+  border: none;
+  border-radius: 0.3em;
+  padding: 10px;
+  font-family: monospace;
+  min-height: 200px;
+}
+
+.ui .text-body-entry-container {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.ui .text-body-entry {
+  display: block;
+  background-color: black;
+  color: white;
+  width: 100%;
+  margin: 10px auto 10px auto;
+  resize: vertical;
+  box-sizing: border-box;
   border: none;
   border-radius: 0.3em;
   padding: 10px;

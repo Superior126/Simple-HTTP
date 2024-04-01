@@ -8,6 +8,10 @@ function RequestBody({ method, bodyFormat, setBodyFormat, formBody, jsonBody }) 
   const formBodyButton = useRef();
   const jsonBodyValidator = useRef();
   const formEntryValue = useRef();
+  const textBodyButton = useRef();
+  const xmlBodyButton = useRef();
+  const xmlValidator = useRef();
+  const xmlBody = useRef();
 
   // Hold form data entries
   const [formDataEntries, setFormDataEntries] = useState([]);
@@ -19,17 +23,26 @@ function RequestBody({ method, bodyFormat, setBodyFormat, formBody, jsonBody }) 
       if (bodyFormat === 'JSON') {
         jsonBodyButton.current.style.borderColor = 'white';
         formBodyButton.current.style.borderColor = 'transparent';
-        document.getElementById('xml-format-button').style.borderColor = 'transparent';
+        xmlBodyButton.current.style.borderColor = 'transparent';
+        textBodyButton.current.style.borderColor = 'transparent';
 
       } else if (bodyFormat === 'Form Data') {
         jsonBodyButton.current.style.borderColor = 'transparent';
-        document.getElementById('xml-format-button').style.borderColor = 'transparent';
+        xmlBodyButton.current.style.borderColor = 'transparent';
         formBodyButton.current.style.borderColor = 'white';
+        textBodyButton.current.style.borderColor = 'transparent';
 
       } else if (bodyFormat === 'XML') {
-        document.getElementById('json-format-button').style.borderColor = 'transparent';
-        document.getElementById('xml-format-button').style.borderColor = 'white';
-        document.getElementById('formData-format-button').style.borderColor = 'transparent';
+        jsonBodyButton.current.style.borderColor = 'transparent';
+        xmlBodyButton.current.style.borderColor = 'white';
+        formBodyButton.current.style.borderColor = 'transparent';
+        textBodyButton.current.style.borderColor = 'transparent';
+
+      } else if (bodyFormat === 'Text') {
+        jsonBodyButton.current.style.borderColor = 'transparent';
+        xmlBodyButton.current.style.borderColor = 'transparent';
+        formBodyButton.current.style.borderColor = 'transparent';
+        textBodyButton.current.style.borderColor = 'white';
       }
     }
   }, [bodyFormat, method]);
@@ -54,10 +67,9 @@ function RequestBody({ method, bodyFormat, setBodyFormat, formBody, jsonBody }) 
       jsonBodyValidator.current.style.color = "green";
 
     } catch {
-
       // Update json validator
-      json_validator.innerHTML = "JSON not is valid!";
-      json_validator.style.color = "red";
+      jsonBodyValidator.current.innerHTML = "JSON not is valid!";
+      jsonBodyValidator.current.style.color = "red";
     }
   }
 
@@ -93,12 +105,12 @@ function RequestBody({ method, bodyFormat, setBodyFormat, formBody, jsonBody }) 
   
     if (isValidXML(xml_string)) {
       // Update xml validator for valid XML
-      xml_validator.innerHTML = "XML is valid!";
-      xml_validator.style.color = "green";
+      xmlValidator.current.innerHTML = "XML is valid!";
+      xmlValidator.current.style.color = "green";
     } else {
       // Update xml validator for invalid XML
-      xml_validator.innerHTML = "XML is not valid!";
-      xml_validator.style.color = "red";
+      xmlValidator.current.innerHTML = "XML is not valid!";
+      xmlValidator.current.style.color = "red";
     }
   }
 
@@ -121,14 +133,16 @@ function RequestBody({ method, bodyFormat, setBodyFormat, formBody, jsonBody }) 
         <ul className='format-options'>
           <li onClick={() => setBodyFormat('JSON')} ref={jsonBodyButton}>JSON</li>
           <li onClick={() => setBodyFormat('Form Data')} ref={formBodyButton}>Form Data</li>
-          <li onClick={() => setBodyFormat('XML')} id='xml-format-button'>XML</li>
+          <li onClick={() => setBodyFormat('Text')} ref={textBodyButton}>Text</li>
+          <li onClick={() => setBodyFormat('XML')} ref={xmlBodyButton}>XML</li>
         </ul>
         {bodyFormat === "JSON" ? (
           <>
             <div className='json-body-entry-container'>
               <textarea ref={jsonBody} placeholder='{"key2": "value2"}' className='json-body-entry' onChange={check_body_json} />
+              <span className='json-validate' ref={jsonBodyValidator} />
             </div>
-            <span style={{ 'paddingLeft': "15px" }} className='json-validate' ref={jsonBodyValidator} />
+            
           </>
         ) : bodyFormat === "Form Data" ? (
           <>
@@ -146,10 +160,18 @@ function RequestBody({ method, bodyFormat, setBodyFormat, formBody, jsonBody }) 
               <button onClick={() => add_form_entry()}> Add +</button>
             </div>
           </>
+        ) : bodyFormat === "XML" ? (
+          <>
+            <div className='xml-body-entry-container'>
+              <textarea ref={xmlBody} placeholder='<key3>value3</key3>' className='xml-body-entry' onChange={check_body_xml} />
+              <span className='xml-validate' ref={xmlValidator} />
+            </div>
+          </>
         ) : (
           <>
-            <textarea id='xml-body' placeholder='<key3>value3</key3>' className='xml-body-entry' onChange={check_body_xml} />
-            <span style={{ 'paddingLeft': "15px" }} className='xml-validate' id='xml-body-validator' />
+            <div className='text-body-entry-container'>
+              <textarea placeholder='Hello World' className='text-body-entry' />
+            </div>
           </>
         )}
       </div>
