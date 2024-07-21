@@ -139,9 +139,14 @@ function RequestBody({ method, bodyFormat, setBodyFormat, formBody, jsonBody, xm
           <>
             <div className='json-body-entry-container'>
               <textarea ref={jsonBody} placeholder='{"key2": "value2"}' className='json-body-entry' onChange={check_body_json} />
-              <span className='json-validate' ref={jsonBodyValidator} />
             </div>
-            
+            <span style={{'paddingLeft': "15px"}} className='json-validate' ref={jsonBodyValidator} />
+          </>
+        ) : bodyFormat === "Text" ? (
+          <>
+            <div className='text-body-entry-container'>
+              <textarea ref={textBody} placeholder='Hello World' className='text-body-entry' />
+            </div>
           </>
         ) : bodyFormat === "Form Data" ? (
           <>
@@ -230,9 +235,6 @@ function UserInterface({ setRequestState }) {
 
     // Get user provided request headers
     const user_request_headers = headersInput.current.value;
-    
-    // Define request headers
-    let request_headers = {};
 
     // Check if user provided request headers
     if (user_request_headers !== "") {
