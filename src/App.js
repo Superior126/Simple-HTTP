@@ -3,7 +3,7 @@ import './App.css';
 import './spinners.css';
 import logo from './assets/logo.png';
 
-function RequestBody({ method, bodyFormat, setBodyFormat, formBody, jsonBody, xmlBody }) {
+function RequestBody({ method, bodyFormat, setBodyFormat, formBody, jsonBody, xmlBody, textBody }) {
   const jsonBodyButton = useRef();
   const formBodyButton = useRef();
   const jsonBodyValidator = useRef();
@@ -193,6 +193,7 @@ function UserInterface({ setRequestState }) {
   const formBody = useRef();
   const jsonBody = useRef();
   const xmlBody = useRef();
+  const textBody = useRef();
 
   // Hold the method for the request
   const [method, setMethod] = useState('GET');
@@ -234,20 +235,20 @@ function UserInterface({ setRequestState }) {
     }
 
     // Get user provided request headers
-    const user_request_headers = headersInput.current.value;
+    let user_request_headers = headersInput.current.value;
 
     // Check if user provided request headers
     if (user_request_headers !== "") {
       // Parse user headers and merge them into the request headers object
       const parsedHeaders = JSON.parse(user_request_headers);
-      request_headers = { ...request_headers, ...parsedHeaders };
+      user_request_headers = { ...parsedHeaders };
     }
 
     // Check if method is POST or PUT
     if (method === 'POST' || method === 'PUT') {
       if (bodyFormat === 'JSON') {
         request_details['body'] = jsonBody.current.value;
-        request_headers['Content-Type'] = 'application/json';
+        user_request_headers['Content-Type'] = 'application/json';
 
       } else if (bodyFormat === 'Form Data') {
         request_details['body'] = new FormData(formBody.current);
@@ -255,14 +256,18 @@ function UserInterface({ setRequestState }) {
 
       } else {
         request_details['body'] = xmlBody.current.value;
-        request_headers['Content-Type'] = 'application/xml';
+        user_request_headers['Content-Type'] = 'application/xml';
       }
     }
 
     // Add headers to request
-    request_details['headers'] = request_headers;
-
+    if (user_request_headers) {
+      request_details['headers'] = user_request_headers;
+    }
+    
     setRequestState('loading');
+
+    console.log(request_details)
 
     // Execute http request
     fetch(requestURL.current.value, request_details)
@@ -293,6 +298,7 @@ function UserInterface({ setRequestState }) {
         });
       })
       .catch(error => {
+        console.error(error)
         // Update request status for errors
         setRequestState({
           'status_code': error.statusCode || 'Unknown', // Set error status or error string
@@ -318,7 +324,7 @@ function UserInterface({ setRequestState }) {
       <textarea className='headers-input' placeholder='{"key1": "value1"}' ref={headersInput} onChange={check_header_json} />
       <span className='json-validate' ref={jsonValidator} />
       <h1>Body</h1>
-      <RequestBody xmlBody={xmlBody} method={method} bodyFormat={bodyFormat} setBodyFormat={setBodyFormat} formBody={formBody} jsonBody={jsonBody} />
+      <RequestBody textBody={textBody} xmlBody={xmlBody} method={method} bodyFormat={bodyFormat} setBodyFormat={setBodyFormat} formBody={formBody} jsonBody={jsonBody} />
       <button className='execute-button' onClick={() => execute_request()}>Execute</button>
     </div>
   );
