@@ -3,7 +3,7 @@ import './App.css';
 import './spinners.css';
 import logo from './assets/logo.png';
 
-function RequestBody({ method, bodyFormat, setBodyFormat, formBody, jsonBody }) {
+function RequestBody({ method, bodyFormat, setBodyFormat, formBody, jsonBody, xmlBody }) {
   const jsonBodyButton = useRef();
   const formBodyButton = useRef();
   const jsonBodyValidator = useRef();
@@ -11,7 +11,6 @@ function RequestBody({ method, bodyFormat, setBodyFormat, formBody, jsonBody }) 
   const textBodyButton = useRef();
   const xmlBodyButton = useRef();
   const xmlValidator = useRef();
-  const xmlBody = useRef();
 
   // Hold form data entries
   const [formDataEntries, setFormDataEntries] = useState([]);
@@ -92,10 +91,10 @@ function RequestBody({ method, bodyFormat, setBodyFormat, formBody, jsonBody }) 
   // Check if body xml is valid
   function check_body_xml() {
     // Get xml from input
-    const xml_string = document.getElementById('xml-body').value;
+    const xml_string = xmlBody.current.value;
   
     // Get xml validator
-    const xml_validator = document.getElementById('xml-body-validator');
+    const xml_validator = xmlValidator.current;
   
     // Check if any data exists
     if (xml_string === "") {
@@ -188,6 +187,7 @@ function UserInterface({ setRequestState }) {
   const requestMethod = useRef();
   const formBody = useRef();
   const jsonBody = useRef();
+  const xmlBody = useRef();
 
   // Hold the method for the request
   const [method, setMethod] = useState('GET');
@@ -252,15 +252,13 @@ function UserInterface({ setRequestState }) {
         // No need to set Content-Type for FormData
 
       } else {
-        request_details['body'] = document.getElementById('xml-body').value;
-        request_headers['Content-Type'] = 'text/xml';
+        request_details['body'] = xmlBody.current.value;
+        request_headers['Content-Type'] = 'application/xml';
       }
     }
 
     // Add headers to request
     request_details['headers'] = request_headers;
-
-    console.log(request_details);
 
     setRequestState('loading');
 
@@ -318,7 +316,7 @@ function UserInterface({ setRequestState }) {
       <textarea className='headers-input' placeholder='{"key1": "value1"}' ref={headersInput} onChange={check_header_json} />
       <span className='json-validate' ref={jsonValidator} />
       <h1>Body</h1>
-      <RequestBody method={method} bodyFormat={bodyFormat} setBodyFormat={setBodyFormat} formBody={formBody} jsonBody={jsonBody} />
+      <RequestBody xmlBody={xmlBody} method={method} bodyFormat={bodyFormat} setBodyFormat={setBodyFormat} formBody={formBody} jsonBody={jsonBody} />
       <button className='execute-button' onClick={() => execute_request()}>Execute</button>
     </div>
   );
