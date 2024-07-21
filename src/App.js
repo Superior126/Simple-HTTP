@@ -3,12 +3,14 @@ import './App.css';
 import './spinners.css';
 import logo from './assets/logo.png';
 
-function RequestBody({ method, bodyFormat, setBodyFormat, formBody, jsonBody, textBody }) {
+function RequestBody({ method, bodyFormat, setBodyFormat, formBody, jsonBody, xmlBody }) {
   const jsonBodyButton = useRef();
   const formBodyButton = useRef();
   const jsonBodyValidator = useRef();
   const formEntryValue = useRef();
   const textBodyButton = useRef();
+  const xmlBodyButton = useRef();
+  const xmlValidator = useRef();
 
   // Hold form data entries
   const [formDataEntries, setFormDataEntries] = useState([]);
@@ -20,15 +22,24 @@ function RequestBody({ method, bodyFormat, setBodyFormat, formBody, jsonBody, te
       if (bodyFormat === 'JSON') {
         jsonBodyButton.current.style.borderColor = 'white';
         formBodyButton.current.style.borderColor = 'transparent';
+        xmlBodyButton.current.style.borderColor = 'transparent';
         textBodyButton.current.style.borderColor = 'transparent';
 
       } else if (bodyFormat === 'Form Data') {
         jsonBodyButton.current.style.borderColor = 'transparent';
+        xmlBodyButton.current.style.borderColor = 'transparent';
         formBodyButton.current.style.borderColor = 'white';
+        textBodyButton.current.style.borderColor = 'transparent';
+
+      } else if (bodyFormat === 'XML') {
+        jsonBodyButton.current.style.borderColor = 'transparent';
+        xmlBodyButton.current.style.borderColor = 'white';
+        formBodyButton.current.style.borderColor = 'transparent';
         textBodyButton.current.style.borderColor = 'transparent';
 
       } else if (bodyFormat === 'Text') {
         jsonBodyButton.current.style.borderColor = 'transparent';
+        xmlBodyButton.current.style.borderColor = 'transparent';
         formBodyButton.current.style.borderColor = 'transparent';
         textBodyButton.current.style.borderColor = 'white';
       }
@@ -55,10 +66,50 @@ function RequestBody({ method, bodyFormat, setBodyFormat, formBody, jsonBody, te
       jsonBodyValidator.current.style.color = "green";
 
     } catch {
-
       // Update json validator
       jsonBodyValidator.current.innerHTML = "JSON not is valid!";
       jsonBodyValidator.current.style.color = "red";
+    }
+  }
+
+  function isValidXML(xmlString) {
+    try {
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(xmlString, 'application/xml');
+  
+      // Serialize the parsed XML document back to a string
+      const serializer = new XMLSerializer();
+      const serializedXml = serializer.serializeToString(xmlDoc);
+  
+      // Compare the serialized XML with the original XML
+      return serializedXml === xmlString;
+    } catch (error) {
+      return false; // Return false for parsing errors
+    }
+  }
+  
+  // Check if body xml is valid
+  function check_body_xml() {
+    // Get xml from input
+    const xml_string = xmlBody.current.value;
+  
+    // Get xml validator
+    const xml_validator = xmlValidator.current;
+  
+    // Check if any data exists
+    if (xml_string === "") {
+      xml_validator.innerHTML = "";
+      return;
+    }
+  
+    if (isValidXML(xml_string)) {
+      // Update xml validator for valid XML
+      xmlValidator.current.innerHTML = "XML is valid!";
+      xmlValidator.current.style.color = "green";
+    } else {
+      // Update xml validator for invalid XML
+      xmlValidator.current.innerHTML = "XML is not valid!";
+      xmlValidator.current.style.color = "red";
     }
   }
 
@@ -82,6 +133,7 @@ function RequestBody({ method, bodyFormat, setBodyFormat, formBody, jsonBody, te
           <li onClick={() => setBodyFormat('JSON')} ref={jsonBodyButton}>JSON</li>
           <li onClick={() => setBodyFormat('Form Data')} ref={formBodyButton}>Form Data</li>
           <li onClick={() => setBodyFormat('Text')} ref={textBodyButton}>Text</li>
+          <li onClick={() => setBodyFormat('XML')} ref={xmlBodyButton}>XML</li>
         </ul>
         {bodyFormat === "JSON" ? (
           <>
@@ -96,7 +148,7 @@ function RequestBody({ method, bodyFormat, setBodyFormat, formBody, jsonBody, te
               <textarea ref={textBody} placeholder='Hello World' className='text-body-entry' />
             </div>
           </>
-        ) : (
+        ) : bodyFormat === "Form Data" ? (
           <>
             <form ref={formBody} className='form-body-entry'>
               {formDataEntries.map((entry, index) => (
@@ -110,6 +162,19 @@ function RequestBody({ method, bodyFormat, setBodyFormat, formBody, jsonBody, te
             <div className='add-form-entry'>
               <input ref={formEntryValue} placeholder='example123' />
               <button onClick={() => add_form_entry()}> Add +</button>
+            </div>
+          </>
+        ) : bodyFormat === "XML" ? (
+          <>
+            <div className='xml-body-entry-container'>
+              <textarea ref={xmlBody} placeholder='<key3>value3</key3>' className='xml-body-entry' onChange={check_body_xml} />
+              <span className='xml-validate' ref={xmlValidator} />
+            </div>
+          </>
+        ) : (
+          <>
+            <div className='text-body-entry-container'>
+              <textarea placeholder='Hello World' className='text-body-entry' />
             </div>
           </>
         )}
@@ -127,7 +192,7 @@ function UserInterface({ setRequestState }) {
   const requestMethod = useRef();
   const formBody = useRef();
   const jsonBody = useRef();
-  const textBody = useRef();
+  const xmlBody = useRef();
 
   // Hold the method for the request
   const [method, setMethod] = useState('GET');
@@ -168,25 +233,34 @@ function UserInterface({ setRequestState }) {
       method: method
     }
 
-    // Get request headers
-    const request_headers = headersInput.current.value;
+    // Get user provided request headers
+    const user_request_headers = headersInput.current.value;
 
-    // Check if headers has a value
-    if (request_headers !== "") {
-      request_details['headers'] = JSON.parse(request_headers);
+    // Check if user provided request headers
+    if (user_request_headers !== "") {
+      // Parse user headers and merge them into the request headers object
+      const parsedHeaders = JSON.parse(user_request_headers);
+      request_headers = { ...request_headers, ...parsedHeaders };
     }
-    
-    // Check request method and set body accordingly
+
+    // Check if method is POST or PUT
     if (method === 'POST' || method === 'PUT') {
-      // Check body format
       if (bodyFormat === 'JSON') {
         request_details['body'] = jsonBody.current.value;
+        request_headers['Content-Type'] = 'application/json';
+
       } else if (bodyFormat === 'Form Data') {
         request_details['body'] = new FormData(formBody.current);
+        // No need to set Content-Type for FormData
+
       } else {
-        request_details['body'] = textBody.current.value;
+        request_details['body'] = xmlBody.current.value;
+        request_headers['Content-Type'] = 'application/xml';
       }
     }
+
+    // Add headers to request
+    request_details['headers'] = request_headers;
 
     setRequestState('loading');
 
@@ -244,7 +318,7 @@ function UserInterface({ setRequestState }) {
       <textarea className='headers-input' placeholder='{"key1": "value1"}' ref={headersInput} onChange={check_header_json} />
       <span className='json-validate' ref={jsonValidator} />
       <h1>Body</h1>
-      <RequestBody method={method} bodyFormat={bodyFormat} setBodyFormat={setBodyFormat} formBody={formBody} jsonBody={jsonBody} textBody={textBody} />
+      <RequestBody xmlBody={xmlBody} method={method} bodyFormat={bodyFormat} setBodyFormat={setBodyFormat} formBody={formBody} jsonBody={jsonBody} />
       <button className='execute-button' onClick={() => execute_request()}>Execute</button>
     </div>
   );
